@@ -1,1 +1,1 @@
-# djngo-auth
+# django-auth
