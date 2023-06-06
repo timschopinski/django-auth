@@ -1,9 +1,8 @@
 from .models import Teacher
 from .serializers import TeacherSerializer
 from rest_framework import viewsets
-from rest_framework.authentication import TokenAuthentication, SessionAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly, \
-    DjangoModelPermissions, DjangoModelPermissionsOrAnonReadOnly
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 
 class TeacherModelViewSet(viewsets.ModelViewSet):
