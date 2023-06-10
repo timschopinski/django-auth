@@ -11,6 +11,9 @@ class Student(models.Model):
     index = models.IntegerField(db_index=True, unique=True)
     city = models.CharField(max_length=100)
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} {self.index}"
+
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
