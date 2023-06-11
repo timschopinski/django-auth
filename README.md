@@ -220,3 +220,51 @@ Metoda authenticate_header zwraca słowo kluczowe używane w nagłówku autoryza
 
 Dzięki uwierzytelnianiu za pomocą tokenu, klienci mogą przesyłać token w nagłówku "Authorization" w celu autoryzacji przy żądaniach API. To zapewnia bezpieczny sposób uwierzytelniania i autoryzacji użytkowników w naszej aplikacji webowej.
 
+## API testapi
+
+```
+Endpoint: /testapi/only-admin/
+
+Metoda GET: Dostęp ma tylko uzytkownik z uprawnieniami administratora.
+```
+```
+Endpoint: /testapi/throttlig/
+
+Metoda GET: Uzytkownik niezalogowany moze tylko 3 razy skorzystac z endpointu na dzien.
+```
+
+###
+
+### Uprawnienia dla admina
+W przypadku endpointu "only-admin", który wymaga dostępu tylko dla administratorów, została zastosowana klasa IsAdminUser dziedzicząca po klasie bazowej BasePermission z Django Rest Framework.
+
+Klasa IsAdminUser implementuje metodę has_permission(self, request, view), która jest wywoływana, aby sprawdzić, czy użytkownik ma uprawnienia do wykonania żądania na danym widoku. Jeśli metoda has_permission() zwraca True, użytkownik ma uprawnienia, w przeciwnym razie żądanie zostanie zablokowane.
+
+W przypadku klasy IsAdminUser, metoda has_permission() sprawdza, czy żądanie zostało wykonane przez zalogowanego użytkownika (poprzez request.user) i czy ten użytkownik ma ustawioną flagę is_staff na True. Domyślnie w Django, pole is_staff oznacza, że użytkownik jest administratorem.
+
+Jeśli warunek request.user and request.user.is_staff zostanie spełniony i zwrócony zostanie wynik True, to oznacza, że użytkownik jest administratorem i ma uprawnienia do dostępu do endpointu "only-admin". W przeciwnym przypadku, gdy użytkownik nie jest administratorem lub nie jest zalogowany, metoda has_permission() zwróci False, uniemożliwiając dostęp do widoku dla tych użytkowników.
+
+Dzięki temu mechanizmowi uwierzytelnienia i uprawnień, tylko administratorzy będą mogli uzyskać dostęp do endpointu "only-admin" w aplikacji.
+
+### Throtling
+Throttling w Django to mechanizm, który ogranicza częstotliwość żądań do aplikacji w celu kontrolowania przeciążenia serwera i zapobiegania nadmiernemu użyciu zasobów. Throttling jest szczególnie przydatny w przypadku publicznych interfejsów API, gdzie chcemy zapewnić równowagę między dostępem do danych a ochroną serwera przed nadmiernym obciążeniem.
+
+Django Rest Framework (DRF) oferuje wbudowany system throttlingu, który można skonfigurować i dostosować do potrzeb aplikacji. Działanie throttlingu w Django można opisać w kilku krokach:
+
+Wybór klasy throttlingu: W DRF można skonfigurować różne klasy throttlingu, które implementują konkretne strategie ograniczania dostępu. Dostępne są takie klasy jak AnonRateThrottle, UserRateThrottle, ScopedRateThrottle, czy CustomThrottleClass. Każda klasa throttlingu ma własne zasady, na przykład ograniczanie na podstawie adresu IP, użytkownika lub zdefiniowanej grupy.
+
+Konfiguracja klasy throttlingu: Klasę throttlingu można skonfigurować w ustawieniach aplikacji Django (settings.py). Możemy określić, które klasy throttlingu mają być używane i jakie limity mają być nałożone na żądania.
+
+Implementacja w widokach: W widokach Django lub widokach opartych na DRF, można przypisać klasy throttlingu do odpowiednich widoków lub widoków klasowych. Działa to poprzez przypisanie listy klas throttlingu do atrybutu throttle_classes widoku. Możemy również ustawić różne klasy throttlingu dla różnych metod HTTP (np. GET, POST, itp.).
+
+Przetwarzanie żądań: Kiedy żądanie dochodzi do widoku, framework DRF sprawdza klasy throttlingu przypisane do tego widoku. Jeśli zostaną spełnione limity określone w klasach throttlingu, żądanie zostaje przetworzone i zwracana jest odpowiedź. W przeciwnym przypadku, gdy żądanie przekracza limity, zostaje zwrócony błąd o przekroczeniu limitu (np. kod statusu HTTP 429 - Too Many Requests).
+
+Dzięki mechanizmowi throttlingu, Django daje możliwość kontroli nad częstotliwością żądań i zapewnia ochronę aplikacji przed nadmiernym użyciem zasobów. Może to pomóc w utrzymaniu stabilności, bezpieczeństwa i wydajności serwera, szczególnie w przypadku popularnych aplikacji internetowych z dużą liczbą użytkowników lub publicznych API.
+- #### Skad wiadomo jaki uzytkownik ma adres IP?
+Throttling w kontekście adresu IP działa w taki sposób, że serwer, na którym działa aplikacja, identyfikuje adres IP, z którego pochodzi żądanie, aby kontrolować częstotliwość i limit dostępu dla danego adresu IP.
+
+Kiedy klient wysyła żądanie do serwera, serwer odczytuje adres IP klienta z nagłówka żądania HTTP. Adres IP zawarty w nagłówku żądania informuje serwer, z jakiego źródła pochodzi żądanie.
+Informacje o adresie IP klienta są dostępne w obiekcie request przekazywanym do widoku lub widoku klasowego w Django. Można odczytać adres IP klienta za pomocą request.META['REMOTE_ADDR'] lub request.META.get('HTTP_X_FORWARDED_FOR', ''), uwzględniając różne nagłówki w przypadku, gdy żądanie przechodzi przez serwery pośredniczące lub proxy.
+
+- #### Gdzie zapisywane sa adresy IP?
+Adres IP klienta może być zapisywany w bazie danych, w pamięci podręcznej (cache) lub innym mechanizmie przechowywania stanu. W przypadku Django, można wykorzystać modele i tabele w bazie danych do przechowywania adresów IP i ich powiązanych informacji, takich jak liczba żądań i czas ostatniego żądania.
