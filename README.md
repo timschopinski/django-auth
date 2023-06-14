@@ -8,6 +8,10 @@ W naszym projekcie zdecydowaliśmy się wykorzystać framework Django Rest Frame
 W przypadku naszego projektu, zdecydowaliśmy się skorzystać z frameworka Django ze względu na jego zaawansowane funkcje uwierzytelniania użytkowników.
 
 Django to popularny, oparty na języku Python, framework webowy, który oferuje wiele gotowych rozwiązań i narzędzi, usprawniających proces tworzenia aplikacji webowych. Jednym z nich jest wbudowany system uwierzytelniania użytkowników, który posiada szeroki zakres funkcji, takich jak obsługa kont użytkowników, grup, uprawnień oraz sesji użytkowników opartych na ciasteczkach.
+Django w naszym przypadku oferuje gotowe klasy dostepu z ktoryh skorzystalismy (permission_classes),
+dodatkowo skorzystalismy z klas do uwierzytelniania (authentication_classes),
+gotowej implementacji Tokenu, oraz gotowej implementacji throttlingu.
+
 
 ## API teacherapi
 Implementacja API dla nauczycieli:
@@ -219,6 +223,16 @@ Jeśli użytkownik powiązany z tokenem jest nieaktywny, również zostaje zgło
 Metoda authenticate_header zwraca słowo kluczowe używane w nagłówku autoryzacyjnym, w naszym przypadku "Token", aby klient wiedział, jaką formę uwierzytelnienia stosować.
 
 Dzięki uwierzytelnianiu za pomocą tokenu, klienci mogą przesyłać token w nagłówku "Authorization" w celu autoryzacji przy żądaniach API. To zapewnia bezpieczny sposób uwierzytelniania i autoryzacji użytkowników w naszej aplikacji webowej.
+
+### Uwierzytelnianie sesyjne VS Uwierzytelnianie za pomocą tokenu
+
+Główna różnica między uwierzytelnianiem sesyjnym a uwierzytelnianiem za pomocą tokenu polega na tym, jak przechowywane są informacje uwierzytelniające i sposób ich przekazywania w kolejnych żądaniach.
+
+Uwierzytelnianie sesyjne:
+Uwierzytelnianie sesyjne polega na przechowywaniu sesji użytkownika po stronie serwera. Po uwierzytelnieniu użytkownika (na przykład na podstawie nazwy użytkownika i hasła), serwer tworzy unikalną sesję dla tego użytkownika i zwraca identyfikator sesji, najczęściej w postaci ciasteczka HTTP. W kolejnych żądaniach użytkownik przekazuje ten identyfikator sesji, zazwyczaj również w postaci ciasteczka, aby serwer mógł go zidentyfikować. Sesja przechowuje informacje o uwierzytelnionym użytkowniku, dzięki czemu serwer może sprawdzić, czy użytkownik ma uprawnienia do żądanego zasobu.
+
+Uwierzytelnianie za pomocą tokenu:
+Uwierzytelnianie za pomocą tokenu polega na przesyłaniu tokena uwierzytelniającego w nagłówku żądania HTTP. Token jest generowany przez serwer po poprawnym uwierzytelnieniu użytkownika i zwracany w odpowiedzi. Token jest przekazywany do klienta (przeglądarki) w odpowiedzi na poprawne uwierzytelnienie. Następnie przeglądarka automatycznie dołącza ten token do nagłówka "Authorization" przy każdym wysłanym żądaniu, które wynika z akcji użytkownika na stronie. Serwer weryfikuje poprawność tokenu i decyduje, czy użytkownik ma uprawnienia do żądanego zasobu.
 
 ## API testapi
 
